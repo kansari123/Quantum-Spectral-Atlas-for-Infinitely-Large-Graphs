@@ -9,6 +9,12 @@ This repository is the public mirror of the ancillary materials (`anc/`) accompa
 **Paper:** arXiv link pending — this line will be updated when the preprint is live.
 **Landing page:** https://kansari123.github.io/Quantum-Spectral-Atlas-for-Infinitely-Large-Graphs/
 
+## What this is
+
+One quantum measurement pass per network, then hundreds of answers by classical post-processing. A network's *spectrum* is the set of numbers that summarizes its global shape, and it controls quantities like diffusion behavior, resistance curves, traces of matrix functions, and log-determinants. This protocol has a quantum computer acquire, in a single shallow pass, a compact table of polynomial moments of a quantum walk built from the network (the *atlas*); every target quantity is then read off that one table classically, at no further quantum cost, with a consistency diagnostic attached to each answer.
+
+It is aimed at networks too large to store explicitly (up to 2^2000 vertices here, specified by a generating rule) and at signed or magnetic operators, where the best generic classical sampler's cost multiplies by 10^24 to 10^111 while the atlas is unchanged. It is not aimed at explicit graphs that fit in memory, where classical solvers remain 10^3 to 10^5 times faster, and no hardness is claimed for any executed instance; all validation instances are classically checkable by construction.
+
 ## Layout
 
 | Path | Contents |
