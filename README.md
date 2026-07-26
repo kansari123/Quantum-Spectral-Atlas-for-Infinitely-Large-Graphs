@@ -42,7 +42,7 @@ flowchart LR
     C --> G["Traces of matrix functions<br/>+ per-answer diagnostics"]
 ```
 
-The protocol builds a *quantum walk* from the operator: a circuit whose step-by-step dynamics mirror the network's structure, constructed directly from the generating rule, so the network itself is never stored. One shallow acquisition pass then measures a fixed table of *polynomial moments* of that walk at several resolution levels: coarse levels capture the spectrum's broad shape with very short circuits, and finer levels sharpen it where needed. That table is the **atlas**, and it is the only thing the quantum computer ever produces.
+The protocol builds a *quantum walk* from the operator: a circuit whose step-by-step dynamics mirror the network's structure, constructed directly from the generating rule, so the network itself is never stored. Its state is a *superposition* over all vertices at once, so a depth-D pass coherently combines the contributions of every length-D path through the network, where a classical walker must sample those paths one at a time. One shallow acquisition pass then measures a fixed table of *polynomial moments* of that walk at several resolution levels: coarse levels capture the spectrum's broad shape with very short circuits, and finer levels sharpen it where needed. That table is the **atlas**, and it is the only thing the quantum computer ever produces.
 
 Everything after that is classical post-processing. Because moments are functional-agnostic, the same table is re-read for any target quantity — spectral densities, traces of matrix functions, effective-resistance curves, log-determinants — hundreds of answers at no further quantum cost. Each read-out is solved as a constrained fit that carries its own internal consistency diagnostics, so every answer comes with a check on its own trustworthiness. All of this was validated against independently computed ground truth, with accuracy criteria fixed before data collection.
 
@@ -50,7 +50,7 @@ Everything after that is classical post-processing. Because moments are function
 
 **On implicit, sign-free graphs**, the honest classical competitor is a generic walk-based sampler, which also never stores the network but pays step by step. The quantum walk reaches a given spectral resolution with quadratically fewer steps than that sampler needs — a per-moment gap that is quadratic in resolution, and measured rather than assumed.
 
-**On signed and magnetic operators**, the gap stops being polynomial. Sign cancellations push the measured cost of the classical sampler up by 10^24–10^111× at the required depth, while the quantum walk is sign-blind: its cost and accuracy do not change at all. As a concrete endpoint, a signed operator on ≈10^80 vertices yields its log-determinant to 2.9×10^−14 nats.
+**On signed and magnetic operators**, the gap stops being polynomial. Sign cancellations push the measured cost of the classical sampler up by 10^24–10^111× at the required depth, while the quantum walk is sign-blind: signs enter as phases on the superposed amplitudes and are handled by interference rather than by statistical averaging, so its cost and accuracy do not change at all. As a concrete endpoint, a signed operator on ≈10^80 vertices yields its log-determinant to 2.9×10^−14 nats.
 
 **And where classical simply wins:** if the graph is explicit and fits in memory, direct classical solvers remain 10^3–10^5× faster. This protocol is for the regimes where they cannot run.
 
