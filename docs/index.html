@@ -4,136 +4,314 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quantum Spectral Atlases for Exponentially Large Graphs</title>
-<meta name="description" content="One shallow quantum measurement pass per operator yields an atlas of spectral moments; hundreds of spectral quantities then follow by classical post-processing at no further quantum cost.">
+<meta name="description" content="One shallow quantum pass per operator yields an atlas of spectral moments; hundreds of spectral quantities follow by classical post-processing at no further quantum cost.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#FCFCFA; --ink:#191C1F; --muted:#5A6068; --accent:#2742B8;
-  --rule:#DCDDD8; --codebg:#F1F1EC;
-  --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
-  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+:root{
+  --bg:#0A0D13; --panel:#11151E; --panel2:#151B27; --ink:#E8EAF0; --muted:#9AA3B5;
+  --line:#232A3A; --v:#7C5CFF; --b:#3E8BFF; --t:#2BD9C7; --a:#FFC24B;
+  --grad:linear-gradient(90deg,var(--v),var(--b),var(--t),var(--a));
+  --disp:'Space Grotesk',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
 }
-* { box-sizing:border-box; }
-html { background:var(--bg); }
-body {
-  margin:0 auto; max-width:44rem; padding:clamp(2rem,6vw,4.5rem) clamp(1.1rem,4vw,2rem) 3rem;
-  color:var(--ink); font-family:var(--serif); font-size:1.05rem; line-height:1.62;
-}
-a { color:var(--accent); text-decoration:none; }
-a:hover { text-decoration:underline; }
-a:focus-visible, .btn:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
-.eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 1rem; }
-h1 { font-size:clamp(1.7rem,4.6vw,2.45rem); line-height:1.16; font-weight:600; margin:.1rem 0 .4rem; letter-spacing:-.01em; }
-.subtitle { font-size:clamp(1.05rem,2.6vw,1.3rem); color:var(--muted); margin:0 0 1.1rem; line-height:1.35; }
-.author { margin:0 0 1.6rem; }
-.author .aff { color:var(--muted); }
-.actions { display:flex; flex-wrap:wrap; gap:.6rem; margin:0 0 2.2rem; }
-.btn { font-family:var(--mono); font-size:.8rem; padding:.5rem .95rem; border:1px solid var(--ink); border-radius:999px; color:var(--ink); }
-.btn:hover { background:var(--ink); color:var(--bg); text-decoration:none; }
-.btn.pending { border-style:dashed; border-color:var(--rule); color:var(--muted); cursor:default; }
-.btn.pending:hover { background:none; color:var(--muted); }
-.cheb { display:block; width:100%; height:14px; color:var(--muted); opacity:.55; margin:2.1rem 0; }
-h2 { font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500; margin:0 0 .9rem; }
-section { margin:0 0 2rem; }
-.plain p { margin:0 0 .9rem; }
-.plain p:last-child { margin-bottom:0; }
-.steps ol { margin:0; padding-left:1.35rem; }
-.steps li { margin:0 0 .8rem; padding-left:.25rem; }
-.steps li::marker { font-family:var(--mono); font-size:.82rem; color:var(--muted); }
-.steps b { font-weight:600; }
-.scope { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-.scope h3 { font-family:var(--mono); font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:500; margin:0 0 .55rem; }
-.scope ul { margin:0; padding-left:1.1rem; }
-.scope li { margin:0 0 .5rem; font-size:.95rem; }
-.abstract p { margin:0; hyphens:auto; }
-figure { margin:0; }
-figure img { width:100%; height:auto; border:1px solid var(--rule); border-radius:4px; }
-figcaption { font-size:.85rem; color:var(--muted); margin-top:.55rem; line-height:1.5; }
-.map .row { display:grid; grid-template-columns:9.5rem 1fr; gap:1rem; padding:.55rem 0; border-top:1px solid var(--rule); }
-.map .row:last-child { border-bottom:1px solid var(--rule); }
-.map code { font-family:var(--mono); font-size:.82rem; }
-.map span { font-size:.95rem; }
-pre { background:var(--codebg); border-radius:6px; padding:1rem 1.1rem; overflow-x:auto; font-family:var(--mono); font-size:.78rem; line-height:1.55; }
-footer { margin-top:2.4rem; font-size:.88rem; color:var(--muted); }
-@media (max-width:520px) {
-  .map .row { grid-template-columns:1fr; gap:.15rem; }
-  .scope { grid-template-columns:1fr; }
+*{box-sizing:border-box} html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.6}
+.wrap{max-width:70rem;margin:0 auto;padding:0 clamp(1.1rem,4vw,2rem)}
+a{color:var(--t);text-decoration:none} a:hover{text-decoration:underline}
+a:focus-visible,.btn:focus-visible,button:focus-visible{outline:2px solid var(--t);outline-offset:3px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto;height:80%;
+  background:radial-gradient(60% 60% at 30% 20%,rgba(124,92,255,.16),transparent 70%),
+             radial-gradient(50% 60% at 80% 10%,rgba(43,217,199,.10),transparent 70%);pointer-events:none}
+.hero .wrap{position:relative;padding-top:clamp(3rem,7vw,5.5rem)}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 1.1rem}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(2rem,5.4vw,3.4rem);line-height:1.06;letter-spacing:-.02em;margin:0 0 .6rem;max-width:52rem}
+h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.subtitle{font-family:var(--disp);font-weight:500;font-size:clamp(1.05rem,2.4vw,1.35rem);color:var(--muted);margin:0 0 1rem}
+.author{color:var(--muted);margin:0 0 1.5rem}.author b{color:var(--ink);font-weight:600}
+.actions{display:flex;flex-wrap:wrap;gap:.65rem;margin:0 0 2.4rem}
+.btn{font-family:var(--mono);font-size:.8rem;padding:.6rem 1.05rem;border-radius:999px;border:1px solid var(--line);color:var(--ink);background:var(--panel)}
+.btn.primary{border:none;background:var(--grad);color:#0A0D13;font-weight:500}
+.btn:hover{text-decoration:none;border-color:var(--t)} .btn.primary:hover{filter:brightness(1.08)}
+.btn.pending{border-style:dashed;color:var(--muted);cursor:default}.btn.pending:hover{border-color:var(--line)}
+.ridge{display:block;width:100%;height:auto;margin:0 0 -1px}
+.rung{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s ease forwards}
+.r1{animation-delay:.25s}.r2{animation-delay:.5s}.r3{animation-delay:.75s}
+@keyframes draw{to{stroke-dashoffset:0}}
+.ridge-cap{font-family:var(--mono);font-size:.7rem;color:var(--muted);text-align:right;margin:.4rem 0 2.2rem}
+
+/* sections */
+section{padding:clamp(2.4rem,6vw,4rem) 0}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(1.35rem,3vw,1.9rem);letter-spacing:-.01em;margin:0 0 .4rem}
+h2::after{content:"";display:block;width:3.2rem;height:3px;border-radius:2px;background:var(--grad);margin-top:.55rem}
+.lede{color:var(--muted);max-width:46rem;margin:.8rem 0 1.8rem}
+.lede b{color:var(--ink)}
+
+/* stat strip */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-top:-1.4rem}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.15rem}
+.stat .v{font-family:var(--disp);font-weight:700;font-size:clamp(1.5rem,3vw,2.1rem);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.stat .l{font-size:.85rem;color:var(--muted);margin-top:.3rem;line-height:1.45}
+
+/* pipeline */
+.pipe{display:flex;align-items:stretch;gap:.7rem;flex-wrap:wrap}
+.stage{flex:1 1 12rem;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.05rem;min-width:11.5rem}
+.stage svg{display:block;margin-bottom:.6rem}
+.stage h3{font-family:var(--disp);font-size:1rem;font-weight:700;margin:0 0 .25rem}
+.stage p{font-size:.85rem;color:var(--muted);margin:0;line-height:1.5}
+.stage .tag{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t);display:block;margin-bottom:.4rem}
+.arrow{align-self:center;font-family:var(--mono);color:var(--muted);font-size:1.1rem}
+@media (max-width:900px){.pipe{flex-direction:column}.arrow{transform:rotate(90deg);align-self:flex-start;margin-left:1.2rem}}
+
+/* interactive */
+.widget{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:1.3rem}
+.widget .readout{font-family:var(--disp);font-weight:700;font-size:1.15rem;margin:.7rem 0 .2rem}
+.widget .readout em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.widget .note{font-size:.8rem;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--t);margin-top:.6rem}
+#qchart{width:100%;height:auto;display:block}
+.axlab{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+
+/* figures */
+.figs{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.figcard{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.8rem;transition:transform .25s,border-color .25s}
+.figcard:hover{transform:translateY(-3px);border-color:#33405c}
+.figcard.wide{grid-column:1/-1}
+.figcard img{width:100%;height:auto;border-radius:8px;background:#fff}
+.figcard figcaption{font-size:.85rem;color:var(--muted);padding:.6rem .2rem 0;line-height:1.5}
+.figcard figcaption b{color:var(--ink);font-weight:600}
+@media (max-width:760px){.figs{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+
+/* scope */
+.scope{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.scopecard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.15rem 1.25rem}
+.scopecard h3{font-family:var(--disp);font-size:1rem;margin:0 0 .7rem}
+.scopecard ul{list-style:none;margin:0;padding:0}
+.scopecard li{padding-left:1.5rem;position:relative;margin:0 0 .55rem;font-size:.92rem;color:var(--muted)}
+.scopecard li::before{position:absolute;left:0;font-family:var(--mono);font-weight:500}
+.scopecard.win li::before{content:"✓";color:var(--t)}
+.scopecard.lose li::before{content:"—";color:var(--a)}
+@media (max-width:760px){.scope{grid-template-columns:1fr}}
+
+/* hardware band */
+.hw{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:1.4rem;display:flex;gap:1.4rem;align-items:center;flex-wrap:wrap}
+.hw .big{font-family:var(--disp);font-weight:700;font-size:1.25rem}
+.hw .k{font-family:var(--mono);color:var(--t)}
+.hw p{margin:0;color:var(--muted);font-size:.92rem;max-width:38rem}
+
+/* abstract + map + cite */
+details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1rem 1.2rem}
+summary{cursor:pointer;font-family:var(--disp);font-weight:700}
+details p{color:var(--muted);font-size:.95rem;margin:.9rem 0 0}
+.repo{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem}
+.repocard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem}
+.repocard code{font-family:var(--mono);font-size:.8rem;color:var(--t)}
+.repocard p{margin:.35rem 0 0;font-size:.82rem;color:var(--muted);line-height:1.5}
+@media (max-width:760px){.repo{grid-template-columns:1fr}}
+.cite{position:relative}
+pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.1rem;overflow-x:auto;font-family:var(--mono);font-size:.78rem;line-height:1.55;color:var(--muted)}
+.copy{position:absolute;top:.7rem;right:.7rem;font-family:var(--mono);font-size:.72rem;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:.35rem .7rem;cursor:pointer}
+.copy:hover{border-color:var(--t)}
+footer{border-top:1px solid var(--line);padding:1.6rem 0 2.4rem;color:var(--muted);font-size:.85rem}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .rung{animation:none;stroke-dashoffset:0}
+  .reveal{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
 }
 </style>
 </head>
 <body>
-<p class="eyebrow">Preprint &middot; July 2026</p>
-<h1>Quantum Spectral Atlases for Exponentially&nbsp;Large&nbsp;Graphs</h1>
-<p class="subtitle">Quadratic Speedup, Query Amortization, and Shallow Circuits</p>
-<p class="author">Kamran Ansari <span class="aff">&middot; Stanford University</span></p>
-<nav class="actions">
-  <span class="btn pending" id="arxiv-link">arXiv &mdash; link pending</span>
-  <a class="btn" href="https://github.com/kansari123/Quantum-Spectral-Atlas-for-Infinitely-Large-Graphs">Code &amp; ancillary materials</a>
-  <a class="btn" href="mailto:ansarik@stanford.edu">Contact</a>
-</nav>
-<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
-<section class="plain">
-<h2>What this is</h2>
-<p>Many questions about a network are really questions about its <em>spectrum</em>: a set of numbers that summarizes the network&rsquo;s global shape, how tightly it is connected, how a random walk or a diffusing signal spreads across it, what its resistance curves and log-determinants are. For networks that are too large to ever write down (here, up to 2<sup>2000</sup> vertices, specified only by a generating rule) and for <em>signed</em> networks whose connections mix positive and negative weights, computing spectral quantities classically ranges from expensive to effectively impossible.</p>
-<p>This paper&rsquo;s protocol has a quantum computer make <strong>one short measurement pass</strong> per network and record a compact table of summary statistics, the <em>atlas</em> of the title. From that single table, ordinary classical post-processing then answers <strong>hundreds of different spectral questions at no further quantum cost</strong>, and every answer comes with its own internal consistency check.</p>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Preprint · July 2026</p>
+    <h1>Quantum Spectral Atlases for <span class="g">Exponentially Large</span> Graphs</h1>
+    <p class="subtitle">Quadratic speedup, query amortization, and shallow circuits</p>
+    <p class="author"><b>Kamran Ansari</b> · Stanford University</p>
+    <nav class="actions">
+      <span class="btn pending" id="arxiv-link">arXiv — link pending</span>
+      <a class="btn primary" href="https://github.com/kansari123/Quantum-Spectral-Atlas-for-Infinitely-Large-Graphs">Code &amp; ancillary materials</a>
+      <a class="btn" href="mailto:ansarik@stanford.edu">Contact</a>
+    </nav>
+    <svg class="ridge" viewBox="0 0 1000 320" aria-label="Spectral density resolved at four successively finer resolution levels — the atlas the protocol measures."><rect x="999.3" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="996.9" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="989.7" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="977.8" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="961.2" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="940.3" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="915.0" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="885.8" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="852.9" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="816.5" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="777.1" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="735.0" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="690.6" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="644.4" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="596.8" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="548.3" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="499.3" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="450.3" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="401.8" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="354.2" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="308.0" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="263.6" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="221.5" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="182.1" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="145.7" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="112.8" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="83.6" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="58.3" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="37.4" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="20.8" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="8.9" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="1.7" y="308" width="1.4" height="8" fill="#3A445C"/><rect x="-0.7" y="308" width="1.4" height="8" fill="#3A445C"/><path d="M0.0,135.2 L4.2,132.5 L8.3,129.7 L12.5,126.9 L16.7,124.2 L20.8,121.4 L25.0,118.6 L29.2,115.9 L33.3,113.2 L37.5,110.6 L41.7,108.0 L45.8,105.4 L50.0,103.0 L54.2,100.6 L58.3,98.4 L62.5,96.2 L66.7,94.2 L70.8,92.2 L75.0,90.4 L79.2,88.7 L83.3,87.1 L87.5,85.7 L91.7,84.4 L95.8,83.2 L100.0,82.1 L104.2,81.2 L108.3,80.4 L112.5,79.7 L116.7,79.2 L120.8,78.7 L125.0,78.4 L129.2,78.2 L133.3,78.0 L137.5,78.0 L141.7,78.0 L145.8,78.2 L150.0,78.4 L154.2,78.6 L158.3,78.9 L162.5,79.3 L166.7,79.7 L170.8,80.1 L175.0,80.6 L179.2,81.1 L183.3,81.6 L187.5,82.1 L191.7,82.7 L195.8,83.2 L200.0,83.8 L204.2,84.3 L208.3,84.8 L212.5,85.4 L216.7,85.9 L220.8,86.4 L225.0,87.0 L229.2,87.5 L233.3,88.0 L237.5,88.5 L241.7,89.1 L245.8,89.6 L250.0,90.2 L254.2,90.8 L258.3,91.3 L262.5,92.0 L266.7,92.6 L270.8,93.2 L275.0,93.9 L279.2,94.6 L283.3,95.4 L287.5,96.2 L291.7,97.0 L295.8,97.8 L300.0,98.7 L304.2,99.7 L308.3,100.6 L312.5,101.6 L316.7,102.6 L320.8,103.6 L325.0,104.7 L329.2,105.7 L333.3,106.8 L337.5,107.9 L341.7,109.0 L345.8,110.1 L350.0,111.2 L354.2,112.2 L358.3,113.3 L362.5,114.3 L366.7,115.3 L370.8,116.2 L375.0,117.1 L379.2,118.0 L383.3,118.8 L387.5,119.6 L391.7,120.3 L395.8,120.9 L400.0,121.5 L404.2,122.0 L408.3,122.5 L412.5,122.9 L416.7,123.2 L420.8,123.4 L425.0,123.6 L429.2,123.7 L433.3,123.8 L437.5,123.8 L441.7,123.7 L445.8,123.5 L450.0,123.3 L454.2,123.1 L458.3,122.7 L462.5,122.4 L466.7,121.9 L470.8,121.4 L475.0,120.9 L479.2,120.3 L483.3,119.7 L487.5,119.1 L491.7,118.4 L495.8,117.7 L500.0,117.0 L504.2,116.2 L508.3,115.5 L512.5,114.7 L516.7,113.9 L520.8,113.1 L525.0,112.4 L529.2,111.6 L533.3,110.9 L537.5,110.2 L541.7,109.5 L545.8,108.8 L550.0,108.2 L554.2,107.7 L558.3,107.1 L562.5,106.7 L566.7,106.3 L570.8,106.0 L575.0,105.7 L579.2,105.5 L583.3,105.4 L587.5,105.4 L591.7,105.4 L595.8,105.6 L600.0,105.8 L604.2,106.0 L608.3,106.4 L612.5,106.8 L616.7,107.3 L620.8,107.8 L625.0,108.4 L629.2,109.0 L633.3,109.7 L637.5,110.5 L641.7,111.2 L645.8,112.0 L650.0,112.8 L654.2,113.6 L658.3,114.5 L662.5,115.3 L666.7,116.1 L670.8,116.8 L675.0,117.6 L679.2,118.3 L683.3,119.0 L687.5,119.6 L691.7,120.2 L695.8,120.7 L700.0,121.2 L704.2,121.6 L708.3,122.0 L712.5,122.3 L716.7,122.5 L720.8,122.7 L725.0,122.8 L729.2,122.8 L733.3,122.8 L737.5,122.8 L741.7,122.7 L745.8,122.5 L750.0,122.3 L754.2,122.0 L758.3,121.7 L762.5,121.4 L766.7,121.0 L770.8,120.6 L775.0,120.2 L779.2,119.8 L783.3,119.3 L787.5,118.9 L791.7,118.4 L795.8,117.9 L800.0,117.5 L804.2,117.0 L808.3,116.6 L812.5,116.1 L816.7,115.8 L820.8,115.4 L825.0,115.0 L829.2,114.7 L833.3,114.5 L837.5,114.3 L841.7,114.1 L845.8,114.0 L850.0,114.0 L854.2,114.0 L858.3,114.1 L862.5,114.2 L866.7,114.5 L870.8,114.8 L875.0,115.2 L879.2,115.7 L883.3,116.2 L887.5,116.9 L891.7,117.6 L895.8,118.5 L900.0,119.4 L904.2,120.4 L908.3,121.5 L912.5,122.7 L916.7,124.0 L920.8,125.4 L925.0,126.8 L929.2,128.3 L933.3,129.9 L937.5,131.5 L941.7,133.2 L945.8,135.0 L950.0,136.7 L954.2,138.6 L958.3,140.4 L962.5,142.3 L966.7,144.2 L970.8,146.1 L975.0,148.0 L979.2,149.9 L983.3,151.8 L987.5,153.6 L991.7,155.5 L995.8,157.3 L1000.0,159.0 L1000,188.0 L0,188.0 Z" fill="#7C5CFF" opacity="0.07"/><path class="rung r0" d="M0.0,135.2 L4.2,132.5 L8.3,129.7 L12.5,126.9 L16.7,124.2 L20.8,121.4 L25.0,118.6 L29.2,115.9 L33.3,113.2 L37.5,110.6 L41.7,108.0 L45.8,105.4 L50.0,103.0 L54.2,100.6 L58.3,98.4 L62.5,96.2 L66.7,94.2 L70.8,92.2 L75.0,90.4 L79.2,88.7 L83.3,87.1 L87.5,85.7 L91.7,84.4 L95.8,83.2 L100.0,82.1 L104.2,81.2 L108.3,80.4 L112.5,79.7 L116.7,79.2 L120.8,78.7 L125.0,78.4 L129.2,78.2 L133.3,78.0 L137.5,78.0 L141.7,78.0 L145.8,78.2 L150.0,78.4 L154.2,78.6 L158.3,78.9 L162.5,79.3 L166.7,79.7 L170.8,80.1 L175.0,80.6 L179.2,81.1 L183.3,81.6 L187.5,82.1 L191.7,82.7 L195.8,83.2 L200.0,83.8 L204.2,84.3 L208.3,84.8 L212.5,85.4 L216.7,85.9 L220.8,86.4 L225.0,87.0 L229.2,87.5 L233.3,88.0 L237.5,88.5 L241.7,89.1 L245.8,89.6 L250.0,90.2 L254.2,90.8 L258.3,91.3 L262.5,92.0 L266.7,92.6 L270.8,93.2 L275.0,93.9 L279.2,94.6 L283.3,95.4 L287.5,96.2 L291.7,97.0 L295.8,97.8 L300.0,98.7 L304.2,99.7 L308.3,100.6 L312.5,101.6 L316.7,102.6 L320.8,103.6 L325.0,104.7 L329.2,105.7 L333.3,106.8 L337.5,107.9 L341.7,109.0 L345.8,110.1 L350.0,111.2 L354.2,112.2 L358.3,113.3 L362.5,114.3 L366.7,115.3 L370.8,116.2 L375.0,117.1 L379.2,118.0 L383.3,118.8 L387.5,119.6 L391.7,120.3 L395.8,120.9 L400.0,121.5 L404.2,122.0 L408.3,122.5 L412.5,122.9 L416.7,123.2 L420.8,123.4 L425.0,123.6 L429.2,123.7 L433.3,123.8 L437.5,123.8 L441.7,123.7 L445.8,123.5 L450.0,123.3 L454.2,123.1 L458.3,122.7 L462.5,122.4 L466.7,121.9 L470.8,121.4 L475.0,120.9 L479.2,120.3 L483.3,119.7 L487.5,119.1 L491.7,118.4 L495.8,117.7 L500.0,117.0 L504.2,116.2 L508.3,115.5 L512.5,114.7 L516.7,113.9 L520.8,113.1 L525.0,112.4 L529.2,111.6 L533.3,110.9 L537.5,110.2 L541.7,109.5 L545.8,108.8 L550.0,108.2 L554.2,107.7 L558.3,107.1 L562.5,106.7 L566.7,106.3 L570.8,106.0 L575.0,105.7 L579.2,105.5 L583.3,105.4 L587.5,105.4 L591.7,105.4 L595.8,105.6 L600.0,105.8 L604.2,106.0 L608.3,106.4 L612.5,106.8 L616.7,107.3 L620.8,107.8 L625.0,108.4 L629.2,109.0 L633.3,109.7 L637.5,110.5 L641.7,111.2 L645.8,112.0 L650.0,112.8 L654.2,113.6 L658.3,114.5 L662.5,115.3 L666.7,116.1 L670.8,116.8 L675.0,117.6 L679.2,118.3 L683.3,119.0 L687.5,119.6 L691.7,120.2 L695.8,120.7 L700.0,121.2 L704.2,121.6 L708.3,122.0 L712.5,122.3 L716.7,122.5 L720.8,122.7 L725.0,122.8 L729.2,122.8 L733.3,122.8 L737.5,122.8 L741.7,122.7 L745.8,122.5 L750.0,122.3 L754.2,122.0 L758.3,121.7 L762.5,121.4 L766.7,121.0 L770.8,120.6 L775.0,120.2 L779.2,119.8 L783.3,119.3 L787.5,118.9 L791.7,118.4 L795.8,117.9 L800.0,117.5 L804.2,117.0 L808.3,116.6 L812.5,116.1 L816.7,115.8 L820.8,115.4 L825.0,115.0 L829.2,114.7 L833.3,114.5 L837.5,114.3 L841.7,114.1 L845.8,114.0 L850.0,114.0 L854.2,114.0 L858.3,114.1 L862.5,114.2 L866.7,114.5 L870.8,114.8 L875.0,115.2 L879.2,115.7 L883.3,116.2 L887.5,116.9 L891.7,117.6 L895.8,118.5 L900.0,119.4 L904.2,120.4 L908.3,121.5 L912.5,122.7 L916.7,124.0 L920.8,125.4 L925.0,126.8 L929.2,128.3 L933.3,129.9 L937.5,131.5 L941.7,133.2 L945.8,135.0 L950.0,136.7 L954.2,138.6 L958.3,140.4 L962.5,142.3 L966.7,144.2 L970.8,146.1 L975.0,148.0 L979.2,149.9 L983.3,151.8 L987.5,153.6 L991.7,155.5 L995.8,157.3 L1000.0,159.0" fill="none" stroke="#7C5CFF" stroke-width="2.2" pathLength="1"/><path d="M0.0,210.7 L4.2,206.8 L8.3,202.6 L12.5,198.1 L16.7,193.4 L20.8,188.3 L25.0,183.1 L29.2,177.7 L33.3,172.2 L37.5,166.7 L41.7,161.3 L45.8,156.0 L50.0,151.0 L54.2,146.3 L58.3,141.9 L62.5,138.0 L66.7,134.6 L70.8,131.7 L75.0,129.4 L79.2,127.7 L83.3,126.6 L87.5,126.0 L91.7,126.0 L95.8,126.5 L100.0,127.4 L104.2,128.6 L108.3,130.2 L112.5,132.0 L116.7,133.9 L120.8,135.9 L125.0,138.0 L129.2,140.0 L133.3,141.9 L137.5,143.8 L141.7,145.5 L145.8,147.1 L150.0,148.6 L154.2,150.0 L158.3,151.4 L162.5,152.6 L166.7,153.8 L170.8,155.1 L175.0,156.3 L179.2,157.5 L183.3,158.8 L187.5,160.1 L191.7,161.4 L195.8,162.8 L200.0,164.1 L204.2,165.3 L208.3,166.4 L212.5,167.4 L216.7,168.2 L220.8,168.7 L225.0,169.0 L229.2,169.0 L233.3,168.6 L237.5,167.9 L241.7,166.9 L245.8,165.6 L250.0,164.0 L254.2,162.2 L258.3,160.2 L262.5,158.1 L266.7,155.9 L270.8,153.8 L275.0,151.8 L279.2,150.1 L283.3,148.6 L287.5,147.5 L291.7,146.8 L295.8,146.6 L300.0,146.9 L304.2,147.7 L308.3,149.0 L312.5,150.9 L316.7,153.2 L320.8,156.0 L325.0,159.1 L329.2,162.6 L333.3,166.3 L337.5,170.2 L341.7,174.2 L345.8,178.2 L350.0,182.1 L354.2,185.9 L358.3,189.4 L362.5,192.6 L366.7,195.5 L370.8,197.9 L375.0,200.0 L379.2,201.6 L383.3,202.7 L387.5,203.4 L391.7,203.7 L395.8,203.5 L400.0,202.9 L404.2,202.0 L408.3,200.8 L412.5,199.4 L416.7,197.7 L420.8,196.0 L425.0,194.1 L429.2,192.3 L433.3,190.5 L437.5,188.9 L441.7,187.4 L445.8,186.1 L450.0,185.1 L454.2,184.3 L458.3,183.8 L462.5,183.6 L466.7,183.7 L470.8,184.0 L475.0,184.5 L479.2,185.3 L483.3,186.1 L487.5,187.1 L491.7,188.0 L495.8,189.0 L500.0,189.7 L504.2,190.4 L508.3,190.7 L512.5,190.8 L516.7,190.5 L520.8,189.9 L525.0,188.8 L529.2,187.3 L533.3,185.4 L537.5,183.1 L541.7,180.5 L545.8,177.5 L550.0,174.2 L554.2,170.8 L558.3,167.2 L562.5,163.6 L566.7,160.0 L570.8,156.6 L575.0,153.4 L579.2,150.6 L583.3,148.2 L587.5,146.3 L591.7,144.9 L595.8,144.1 L600.0,143.9 L604.2,144.4 L608.3,145.5 L612.5,147.2 L616.7,149.5 L620.8,152.3 L625.0,155.6 L629.2,159.3 L633.3,163.3 L637.5,167.5 L641.7,171.8 L645.8,176.2 L650.0,180.5 L654.2,184.7 L658.3,188.7 L662.5,192.4 L666.7,195.7 L670.8,198.7 L675.0,201.2 L679.2,203.3 L683.3,204.9 L687.5,205.9 L691.7,206.5 L695.8,206.7 L700.0,206.3 L704.2,205.6 L708.3,204.4 L712.5,202.9 L716.7,201.1 L720.8,199.1 L725.0,196.9 L729.2,194.6 L733.3,192.2 L737.5,189.9 L741.7,187.7 L745.8,185.5 L750.0,183.6 L754.2,181.9 L758.3,180.5 L762.5,179.4 L766.7,178.5 L770.8,178.1 L775.0,177.9 L779.2,178.0 L783.3,178.3 L787.5,178.9 L791.7,179.7 L795.8,180.5 L800.0,181.4 L804.2,182.3 L808.3,183.2 L812.5,183.9 L816.7,184.4 L820.8,184.7 L825.0,184.6 L829.2,184.3 L833.3,183.7 L837.5,182.7 L841.7,181.4 L845.8,179.8 L850.0,177.9 L854.2,175.8 L858.3,173.6 L862.5,171.3 L866.7,168.9 L870.8,166.6 L875.0,164.5 L879.2,162.6 L883.3,161.0 L887.5,159.7 L891.7,158.9 L895.8,158.5 L900.0,158.5 L904.2,159.1 L908.3,160.2 L912.5,161.8 L916.7,163.9 L920.8,166.4 L925.0,169.3 L929.2,172.6 L933.3,176.1 L937.5,179.8 L941.7,183.7 L945.8,187.7 L950.0,191.8 L954.2,195.7 L958.3,199.6 L962.5,203.4 L966.7,207.0 L970.8,210.4 L975.0,213.6 L979.2,216.5 L983.3,219.1 L987.5,221.6 L991.7,223.7 L995.8,225.6 L1000.0,227.3 L1000,236.0 L0,236.0 Z" fill="#3E8BFF" opacity="0.07"/><path class="rung r1" d="M0.0,210.7 L4.2,206.8 L8.3,202.6 L12.5,198.1 L16.7,193.4 L20.8,188.3 L25.0,183.1 L29.2,177.7 L33.3,172.2 L37.5,166.7 L41.7,161.3 L45.8,156.0 L50.0,151.0 L54.2,146.3 L58.3,141.9 L62.5,138.0 L66.7,134.6 L70.8,131.7 L75.0,129.4 L79.2,127.7 L83.3,126.6 L87.5,126.0 L91.7,126.0 L95.8,126.5 L100.0,127.4 L104.2,128.6 L108.3,130.2 L112.5,132.0 L116.7,133.9 L120.8,135.9 L125.0,138.0 L129.2,140.0 L133.3,141.9 L137.5,143.8 L141.7,145.5 L145.8,147.1 L150.0,148.6 L154.2,150.0 L158.3,151.4 L162.5,152.6 L166.7,153.8 L170.8,155.1 L175.0,156.3 L179.2,157.5 L183.3,158.8 L187.5,160.1 L191.7,161.4 L195.8,162.8 L200.0,164.1 L204.2,165.3 L208.3,166.4 L212.5,167.4 L216.7,168.2 L220.8,168.7 L225.0,169.0 L229.2,169.0 L233.3,168.6 L237.5,167.9 L241.7,166.9 L245.8,165.6 L250.0,164.0 L254.2,162.2 L258.3,160.2 L262.5,158.1 L266.7,155.9 L270.8,153.8 L275.0,151.8 L279.2,150.1 L283.3,148.6 L287.5,147.5 L291.7,146.8 L295.8,146.6 L300.0,146.9 L304.2,147.7 L308.3,149.0 L312.5,150.9 L316.7,153.2 L320.8,156.0 L325.0,159.1 L329.2,162.6 L333.3,166.3 L337.5,170.2 L341.7,174.2 L345.8,178.2 L350.0,182.1 L354.2,185.9 L358.3,189.4 L362.5,192.6 L366.7,195.5 L370.8,197.9 L375.0,200.0 L379.2,201.6 L383.3,202.7 L387.5,203.4 L391.7,203.7 L395.8,203.5 L400.0,202.9 L404.2,202.0 L408.3,200.8 L412.5,199.4 L416.7,197.7 L420.8,196.0 L425.0,194.1 L429.2,192.3 L433.3,190.5 L437.5,188.9 L441.7,187.4 L445.8,186.1 L450.0,185.1 L454.2,184.3 L458.3,183.8 L462.5,183.6 L466.7,183.7 L470.8,184.0 L475.0,184.5 L479.2,185.3 L483.3,186.1 L487.5,187.1 L491.7,188.0 L495.8,189.0 L500.0,189.7 L504.2,190.4 L508.3,190.7 L512.5,190.8 L516.7,190.5 L520.8,189.9 L525.0,188.8 L529.2,187.3 L533.3,185.4 L537.5,183.1 L541.7,180.5 L545.8,177.5 L550.0,174.2 L554.2,170.8 L558.3,167.2 L562.5,163.6 L566.7,160.0 L570.8,156.6 L575.0,153.4 L579.2,150.6 L583.3,148.2 L587.5,146.3 L591.7,144.9 L595.8,144.1 L600.0,143.9 L604.2,144.4 L608.3,145.5 L612.5,147.2 L616.7,149.5 L620.8,152.3 L625.0,155.6 L629.2,159.3 L633.3,163.3 L637.5,167.5 L641.7,171.8 L645.8,176.2 L650.0,180.5 L654.2,184.7 L658.3,188.7 L662.5,192.4 L666.7,195.7 L670.8,198.7 L675.0,201.2 L679.2,203.3 L683.3,204.9 L687.5,205.9 L691.7,206.5 L695.8,206.7 L700.0,206.3 L704.2,205.6 L708.3,204.4 L712.5,202.9 L716.7,201.1 L720.8,199.1 L725.0,196.9 L729.2,194.6 L733.3,192.2 L737.5,189.9 L741.7,187.7 L745.8,185.5 L750.0,183.6 L754.2,181.9 L758.3,180.5 L762.5,179.4 L766.7,178.5 L770.8,178.1 L775.0,177.9 L779.2,178.0 L783.3,178.3 L787.5,178.9 L791.7,179.7 L795.8,180.5 L800.0,181.4 L804.2,182.3 L808.3,183.2 L812.5,183.9 L816.7,184.4 L820.8,184.7 L825.0,184.6 L829.2,184.3 L833.3,183.7 L837.5,182.7 L841.7,181.4 L845.8,179.8 L850.0,177.9 L854.2,175.8 L858.3,173.6 L862.5,171.3 L866.7,168.9 L870.8,166.6 L875.0,164.5 L879.2,162.6 L883.3,161.0 L887.5,159.7 L891.7,158.9 L895.8,158.5 L900.0,158.5 L904.2,159.1 L908.3,160.2 L912.5,161.8 L916.7,163.9 L920.8,166.4 L925.0,169.3 L929.2,172.6 L933.3,176.1 L937.5,179.8 L941.7,183.7 L945.8,187.7 L950.0,191.8 L954.2,195.7 L958.3,199.6 L962.5,203.4 L966.7,207.0 L970.8,210.4 L975.0,213.6 L979.2,216.5 L983.3,219.1 L987.5,221.6 L991.7,223.7 L995.8,225.6 L1000.0,227.3" fill="none" stroke="#3E8BFF" stroke-width="2.2" pathLength="1"/><path d="M0.0,282.6 L4.2,281.9 L8.3,280.8 L12.5,279.2 L16.7,277.0 L20.8,274.0 L25.0,270.2 L29.2,265.3 L33.3,259.3 L37.5,252.1 L41.7,243.9 L45.8,234.6 L50.0,224.7 L54.2,214.4 L58.3,204.3 L62.5,194.8 L66.7,186.6 L70.8,180.2 L75.0,175.8 L79.2,174.0 L83.3,174.7 L87.5,178.0 L91.7,183.5 L95.8,190.9 L100.0,199.6 L104.2,209.0 L108.3,218.6 L112.5,227.7 L116.7,235.9 L120.8,242.8 L125.0,248.0 L129.2,251.5 L133.3,253.1 L137.5,252.9 L141.7,251.0 L145.8,247.8 L150.0,243.4 L154.2,238.3 L158.3,232.9 L162.5,227.7 L166.7,223.0 L170.8,219.2 L175.0,216.7 L179.2,215.7 L183.3,216.2 L187.5,218.3 L191.7,221.8 L195.8,226.5 L200.0,232.1 L204.2,238.1 L208.3,244.4 L212.5,250.5 L216.7,256.1 L220.8,261.0 L225.0,265.0 L229.2,268.0 L233.3,269.9 L237.5,270.5 L241.7,269.9 L245.8,268.0 L250.0,264.8 L254.2,260.3 L258.3,254.6 L262.5,247.7 L266.7,240.0 L270.8,231.6 L275.0,223.0 L279.2,214.5 L283.3,206.7 L287.5,200.0 L291.7,194.8 L295.8,191.6 L300.0,190.5 L304.2,191.6 L308.3,194.9 L312.5,200.0 L316.7,206.7 L320.8,214.6 L325.0,223.1 L329.2,231.8 L333.3,240.4 L337.5,248.4 L341.7,255.6 L345.8,261.9 L350.0,267.2 L354.2,271.5 L358.3,274.9 L362.5,277.5 L366.7,279.4 L370.8,280.8 L375.0,281.6 L379.2,282.1 L383.3,282.2 L387.5,282.0 L391.7,281.5 L395.8,280.6 L400.0,279.2 L404.2,277.5 L408.3,275.2 L412.5,272.3 L416.7,268.8 L420.8,264.8 L425.0,260.3 L429.2,255.3 L433.3,250.2 L437.5,245.1 L441.7,240.3 L445.8,236.1 L450.0,232.7 L454.2,230.3 L458.3,229.1 L462.5,229.2 L466.7,230.7 L470.8,233.3 L475.0,236.9 L479.2,241.2 L483.3,246.1 L487.5,251.2 L491.7,256.3 L495.8,261.1 L500.0,265.5 L504.2,269.4 L508.3,272.6 L512.5,275.2 L516.7,277.1 L520.8,278.3 L525.0,278.9 L529.2,278.8 L533.3,277.9 L537.5,276.3 L541.7,273.8 L545.8,270.4 L550.0,266.0 L554.2,260.4 L558.3,253.8 L562.5,246.2 L566.7,237.8 L570.8,228.8 L575.0,219.5 L579.2,210.5 L583.3,202.2 L587.5,195.1 L591.7,189.6 L595.8,186.2 L600.0,185.0 L604.2,186.2 L608.3,189.6 L612.5,195.1 L616.7,202.2 L620.8,210.5 L625.0,219.5 L629.2,228.8 L633.3,237.8 L637.5,246.3 L641.7,253.9 L645.8,260.6 L650.0,266.2 L654.2,270.8 L658.3,274.4 L662.5,277.2 L666.7,279.3 L670.8,280.8 L675.0,281.8 L679.2,282.4 L683.3,282.8 L687.5,282.9 L691.7,282.8 L695.8,282.4 L700.0,281.8 L704.2,280.8 L708.3,279.5 L712.5,277.7 L716.7,275.4 L720.8,272.5 L725.0,268.9 L729.2,264.7 L733.3,259.9 L737.5,254.7 L741.7,249.1 L745.8,243.5 L750.0,238.0 L754.2,233.1 L758.3,228.9 L762.5,225.8 L766.7,224.0 L770.8,223.5 L775.0,224.5 L779.2,226.9 L783.3,230.4 L787.5,235.0 L791.7,240.1 L795.8,245.7 L800.0,251.3 L804.2,256.7 L808.3,261.7 L812.5,266.0 L816.7,269.7 L820.8,272.6 L825.0,274.7 L829.2,275.9 L833.3,276.2 L837.5,275.7 L841.7,274.2 L845.8,271.8 L850.0,268.4 L854.2,264.0 L858.3,258.6 L862.5,252.4 L866.7,245.4 L870.8,237.9 L875.0,230.2 L879.2,222.7 L883.3,215.8 L887.5,209.9 L891.7,205.3 L895.8,202.5 L900.0,201.5 L904.2,202.5 L908.3,205.3 L912.5,209.9 L916.7,215.8 L920.8,222.7 L925.0,230.3 L929.2,238.0 L933.3,245.5 L937.5,252.6 L941.7,258.9 L945.8,264.5 L950.0,269.1 L954.2,273.0 L958.3,276.0 L962.5,278.3 L966.7,280.1 L970.8,281.4 L975.0,282.3 L979.2,282.9 L983.3,283.3 L987.5,283.6 L991.7,283.7 L995.8,283.8 L1000.0,283.9 L1000,284.0 L0,284.0 Z" fill="#2BD9C7" opacity="0.07"/><path class="rung r2" d="M0.0,282.6 L4.2,281.9 L8.3,280.8 L12.5,279.2 L16.7,277.0 L20.8,274.0 L25.0,270.2 L29.2,265.3 L33.3,259.3 L37.5,252.1 L41.7,243.9 L45.8,234.6 L50.0,224.7 L54.2,214.4 L58.3,204.3 L62.5,194.8 L66.7,186.6 L70.8,180.2 L75.0,175.8 L79.2,174.0 L83.3,174.7 L87.5,178.0 L91.7,183.5 L95.8,190.9 L100.0,199.6 L104.2,209.0 L108.3,218.6 L112.5,227.7 L116.7,235.9 L120.8,242.8 L125.0,248.0 L129.2,251.5 L133.3,253.1 L137.5,252.9 L141.7,251.0 L145.8,247.8 L150.0,243.4 L154.2,238.3 L158.3,232.9 L162.5,227.7 L166.7,223.0 L170.8,219.2 L175.0,216.7 L179.2,215.7 L183.3,216.2 L187.5,218.3 L191.7,221.8 L195.8,226.5 L200.0,232.1 L204.2,238.1 L208.3,244.4 L212.5,250.5 L216.7,256.1 L220.8,261.0 L225.0,265.0 L229.2,268.0 L233.3,269.9 L237.5,270.5 L241.7,269.9 L245.8,268.0 L250.0,264.8 L254.2,260.3 L258.3,254.6 L262.5,247.7 L266.7,240.0 L270.8,231.6 L275.0,223.0 L279.2,214.5 L283.3,206.7 L287.5,200.0 L291.7,194.8 L295.8,191.6 L300.0,190.5 L304.2,191.6 L308.3,194.9 L312.5,200.0 L316.7,206.7 L320.8,214.6 L325.0,223.1 L329.2,231.8 L333.3,240.4 L337.5,248.4 L341.7,255.6 L345.8,261.9 L350.0,267.2 L354.2,271.5 L358.3,274.9 L362.5,277.5 L366.7,279.4 L370.8,280.8 L375.0,281.6 L379.2,282.1 L383.3,282.2 L387.5,282.0 L391.7,281.5 L395.8,280.6 L400.0,279.2 L404.2,277.5 L408.3,275.2 L412.5,272.3 L416.7,268.8 L420.8,264.8 L425.0,260.3 L429.2,255.3 L433.3,250.2 L437.5,245.1 L441.7,240.3 L445.8,236.1 L450.0,232.7 L454.2,230.3 L458.3,229.1 L462.5,229.2 L466.7,230.7 L470.8,233.3 L475.0,236.9 L479.2,241.2 L483.3,246.1 L487.5,251.2 L491.7,256.3 L495.8,261.1 L500.0,265.5 L504.2,269.4 L508.3,272.6 L512.5,275.2 L516.7,277.1 L520.8,278.3 L525.0,278.9 L529.2,278.8 L533.3,277.9 L537.5,276.3 L541.7,273.8 L545.8,270.4 L550.0,266.0 L554.2,260.4 L558.3,253.8 L562.5,246.2 L566.7,237.8 L570.8,228.8 L575.0,219.5 L579.2,210.5 L583.3,202.2 L587.5,195.1 L591.7,189.6 L595.8,186.2 L600.0,185.0 L604.2,186.2 L608.3,189.6 L612.5,195.1 L616.7,202.2 L620.8,210.5 L625.0,219.5 L629.2,228.8 L633.3,237.8 L637.5,246.3 L641.7,253.9 L645.8,260.6 L650.0,266.2 L654.2,270.8 L658.3,274.4 L662.5,277.2 L666.7,279.3 L670.8,280.8 L675.0,281.8 L679.2,282.4 L683.3,282.8 L687.5,282.9 L691.7,282.8 L695.8,282.4 L700.0,281.8 L704.2,280.8 L708.3,279.5 L712.5,277.7 L716.7,275.4 L720.8,272.5 L725.0,268.9 L729.2,264.7 L733.3,259.9 L737.5,254.7 L741.7,249.1 L745.8,243.5 L750.0,238.0 L754.2,233.1 L758.3,228.9 L762.5,225.8 L766.7,224.0 L770.8,223.5 L775.0,224.5 L779.2,226.9 L783.3,230.4 L787.5,235.0 L791.7,240.1 L795.8,245.7 L800.0,251.3 L804.2,256.7 L808.3,261.7 L812.5,266.0 L816.7,269.7 L820.8,272.6 L825.0,274.7 L829.2,275.9 L833.3,276.2 L837.5,275.7 L841.7,274.2 L845.8,271.8 L850.0,268.4 L854.2,264.0 L858.3,258.6 L862.5,252.4 L866.7,245.4 L870.8,237.9 L875.0,230.2 L879.2,222.7 L883.3,215.8 L887.5,209.9 L891.7,205.3 L895.8,202.5 L900.0,201.5 L904.2,202.5 L908.3,205.3 L912.5,209.9 L916.7,215.8 L920.8,222.7 L925.0,230.3 L929.2,238.0 L933.3,245.5 L937.5,252.6 L941.7,258.9 L945.8,264.5 L950.0,269.1 L954.2,273.0 L958.3,276.0 L962.5,278.3 L966.7,280.1 L970.8,281.4 L975.0,282.3 L979.2,282.9 L983.3,283.3 L987.5,283.6 L991.7,283.7 L995.8,283.8 L1000.0,283.9" fill="none" stroke="#2BD9C7" stroke-width="2.2" pathLength="1"/><path d="M0.0,332.0 L4.2,332.0 L8.3,332.0 L12.5,332.0 L16.7,332.0 L20.8,332.0 L25.0,331.9 L29.2,331.6 L33.3,331.1 L37.5,330.0 L41.7,327.8 L45.8,323.8 L50.0,317.1 L54.2,307.0 L58.3,293.2 L62.5,276.2 L66.7,257.8 L70.8,240.6 L75.0,227.8 L79.2,222.0 L83.3,224.5 L87.5,234.8 L91.7,250.6 L95.8,268.9 L100.0,286.7 L104.2,301.9 L108.3,313.5 L112.5,321.5 L116.7,326.4 L120.8,329.3 L125.0,330.7 L129.2,331.3 L133.3,331.3 L137.5,330.7 L141.7,329.4 L145.8,326.9 L150.0,322.8 L154.2,316.5 L158.3,307.9 L162.5,297.4 L166.7,286.0 L170.8,275.3 L175.0,267.4 L179.2,263.8 L183.3,265.4 L187.5,271.7 L191.7,281.5 L195.8,292.9 L200.0,303.9 L204.2,313.3 L208.3,320.5 L212.5,325.5 L216.7,328.6 L220.8,330.3 L225.0,331.2 L229.2,331.7 L233.3,331.9 L237.5,331.9 L241.7,331.9 L245.8,331.9 L250.0,331.6 L254.2,331.1 L258.3,330.0 L262.5,327.9 L266.7,324.1 L270.8,317.9 L275.0,308.6 L279.2,296.3 L283.3,281.5 L287.5,265.8 L291.7,251.7 L295.8,241.9 L300.0,238.4 L304.2,241.9 L308.3,251.7 L312.5,265.8 L316.7,281.5 L320.8,296.3 L325.0,308.6 L329.2,317.9 L333.3,324.1 L337.5,327.9 L341.7,330.0 L345.8,331.1 L350.0,331.6 L354.2,331.9 L358.3,332.0 L362.5,332.0 L366.7,332.0 L370.8,332.0 L375.0,332.0 L379.2,332.0 L383.3,332.0 L387.5,332.0 L391.7,332.0 L395.8,332.0 L400.0,332.0 L404.2,331.9 L408.3,331.9 L412.5,331.6 L416.7,331.2 L420.8,330.2 L425.0,328.4 L429.2,325.3 L433.3,320.7 L437.5,314.1 L441.7,305.9 L445.8,296.7 L450.0,287.9 L454.2,280.9 L458.3,277.3 L462.5,277.7 L466.7,282.1 L470.8,289.6 L475.0,298.6 L479.2,307.7 L483.3,315.6 L487.5,321.7 L491.7,326.1 L495.8,328.8 L500.0,330.4 L504.2,331.3 L508.3,331.7 L512.5,331.9 L516.7,332.0 L520.8,332.0 L525.0,332.0 L529.2,332.0 L533.3,332.0 L537.5,332.0 L541.7,331.9 L545.8,331.9 L550.0,331.6 L554.2,331.1 L558.3,329.9 L562.5,327.6 L566.7,323.6 L570.8,317.0 L575.0,307.3 L579.2,294.2 L583.3,278.5 L587.5,261.9 L591.7,247.0 L595.8,236.6 L600.0,232.8 L604.2,236.6 L608.3,247.0 L612.5,261.9 L616.7,278.5 L620.8,294.2 L625.0,307.3 L629.2,317.0 L633.3,323.6 L637.5,327.6 L641.7,329.9 L645.8,331.1 L650.0,331.6 L654.2,331.9 L658.3,331.9 L662.5,332.0 L666.7,332.0 L670.8,332.0 L675.0,332.0 L679.2,332.0 L683.3,332.0 L687.5,332.0 L691.7,332.0 L695.8,332.0 L700.0,332.0 L704.2,332.0 L708.3,332.0 L712.5,332.0 L716.7,331.9 L720.8,331.7 L725.0,331.3 L729.2,330.5 L733.3,328.9 L737.5,326.2 L741.7,321.8 L745.8,315.5 L750.0,307.1 L754.2,297.3 L758.3,287.2 L762.5,278.5 L766.7,272.9 L770.8,271.5 L775.0,274.7 L779.2,281.7 L783.3,291.2 L787.5,301.3 L791.7,310.7 L795.8,318.2 L800.0,323.8 L804.2,327.5 L808.3,329.7 L812.5,330.9 L816.7,331.5 L820.8,331.8 L825.0,331.9 L829.2,332.0 L833.3,332.0 L837.5,332.0 L841.7,332.0 L845.8,331.9 L850.0,331.7 L854.2,331.2 L858.3,330.3 L862.5,328.4 L866.7,325.0 L870.8,319.5 L875.0,311.4 L879.2,300.5 L883.3,287.4 L887.5,273.6 L891.7,261.2 L895.8,252.5 L900.0,249.4 L904.2,252.5 L908.3,261.2 L912.5,273.6 L916.7,287.4 L920.8,300.5 L925.0,311.4 L929.2,319.5 L933.3,325.0 L937.5,328.4 L941.7,330.3 L945.8,331.2 L950.0,331.7 L954.2,331.9 L958.3,332.0 L962.5,332.0 L966.7,332.0 L970.8,332.0 L975.0,332.0 L979.2,332.0 L983.3,332.0 L987.5,332.0 L991.7,332.0 L995.8,332.0 L1000.0,332.0 L1000,332.0 L0,332.0 Z" fill="#FFC24B" opacity="0.07"/><path class="rung r3" d="M0.0,332.0 L4.2,332.0 L8.3,332.0 L12.5,332.0 L16.7,332.0 L20.8,332.0 L25.0,331.9 L29.2,331.6 L33.3,331.1 L37.5,330.0 L41.7,327.8 L45.8,323.8 L50.0,317.1 L54.2,307.0 L58.3,293.2 L62.5,276.2 L66.7,257.8 L70.8,240.6 L75.0,227.8 L79.2,222.0 L83.3,224.5 L87.5,234.8 L91.7,250.6 L95.8,268.9 L100.0,286.7 L104.2,301.9 L108.3,313.5 L112.5,321.5 L116.7,326.4 L120.8,329.3 L125.0,330.7 L129.2,331.3 L133.3,331.3 L137.5,330.7 L141.7,329.4 L145.8,326.9 L150.0,322.8 L154.2,316.5 L158.3,307.9 L162.5,297.4 L166.7,286.0 L170.8,275.3 L175.0,267.4 L179.2,263.8 L183.3,265.4 L187.5,271.7 L191.7,281.5 L195.8,292.9 L200.0,303.9 L204.2,313.3 L208.3,320.5 L212.5,325.5 L216.7,328.6 L220.8,330.3 L225.0,331.2 L229.2,331.7 L233.3,331.9 L237.5,331.9 L241.7,331.9 L245.8,331.9 L250.0,331.6 L254.2,331.1 L258.3,330.0 L262.5,327.9 L266.7,324.1 L270.8,317.9 L275.0,308.6 L279.2,296.3 L283.3,281.5 L287.5,265.8 L291.7,251.7 L295.8,241.9 L300.0,238.4 L304.2,241.9 L308.3,251.7 L312.5,265.8 L316.7,281.5 L320.8,296.3 L325.0,308.6 L329.2,317.9 L333.3,324.1 L337.5,327.9 L341.7,330.0 L345.8,331.1 L350.0,331.6 L354.2,331.9 L358.3,332.0 L362.5,332.0 L366.7,332.0 L370.8,332.0 L375.0,332.0 L379.2,332.0 L383.3,332.0 L387.5,332.0 L391.7,332.0 L395.8,332.0 L400.0,332.0 L404.2,331.9 L408.3,331.9 L412.5,331.6 L416.7,331.2 L420.8,330.2 L425.0,328.4 L429.2,325.3 L433.3,320.7 L437.5,314.1 L441.7,305.9 L445.8,296.7 L450.0,287.9 L454.2,280.9 L458.3,277.3 L462.5,277.7 L466.7,282.1 L470.8,289.6 L475.0,298.6 L479.2,307.7 L483.3,315.6 L487.5,321.7 L491.7,326.1 L495.8,328.8 L500.0,330.4 L504.2,331.3 L508.3,331.7 L512.5,331.9 L516.7,332.0 L520.8,332.0 L525.0,332.0 L529.2,332.0 L533.3,332.0 L537.5,332.0 L541.7,331.9 L545.8,331.9 L550.0,331.6 L554.2,331.1 L558.3,329.9 L562.5,327.6 L566.7,323.6 L570.8,317.0 L575.0,307.3 L579.2,294.2 L583.3,278.5 L587.5,261.9 L591.7,247.0 L595.8,236.6 L600.0,232.8 L604.2,236.6 L608.3,247.0 L612.5,261.9 L616.7,278.5 L620.8,294.2 L625.0,307.3 L629.2,317.0 L633.3,323.6 L637.5,327.6 L641.7,329.9 L645.8,331.1 L650.0,331.6 L654.2,331.9 L658.3,331.9 L662.5,332.0 L666.7,332.0 L670.8,332.0 L675.0,332.0 L679.2,332.0 L683.3,332.0 L687.5,332.0 L691.7,332.0 L695.8,332.0 L700.0,332.0 L704.2,332.0 L708.3,332.0 L712.5,332.0 L716.7,331.9 L720.8,331.7 L725.0,331.3 L729.2,330.5 L733.3,328.9 L737.5,326.2 L741.7,321.8 L745.8,315.5 L750.0,307.1 L754.2,297.3 L758.3,287.2 L762.5,278.5 L766.7,272.9 L770.8,271.5 L775.0,274.7 L779.2,281.7 L783.3,291.2 L787.5,301.3 L791.7,310.7 L795.8,318.2 L800.0,323.8 L804.2,327.5 L808.3,329.7 L812.5,330.9 L816.7,331.5 L820.8,331.8 L825.0,331.9 L829.2,332.0 L833.3,332.0 L837.5,332.0 L841.7,332.0 L845.8,331.9 L850.0,331.7 L854.2,331.2 L858.3,330.3 L862.5,328.4 L866.7,325.0 L870.8,319.5 L875.0,311.4 L879.2,300.5 L883.3,287.4 L887.5,273.6 L891.7,261.2 L895.8,252.5 L900.0,249.4 L904.2,252.5 L908.3,261.2 L912.5,273.6 L916.7,287.4 L920.8,300.5 L925.0,311.4 L929.2,319.5 L933.3,325.0 L937.5,328.4 L941.7,330.3 L945.8,331.2 L950.0,331.7 L954.2,331.9 L958.3,332.0 L962.5,332.0 L966.7,332.0 L970.8,332.0 L975.0,332.0 L979.2,332.0 L983.3,332.0 L987.5,332.0 L991.7,332.0 L995.8,332.0 L1000.0,332.0" fill="none" stroke="#FFC24B" stroke-width="2.2" pathLength="1"/></svg>
+    <p class="ridge-cap">the atlas: one spectral density, four resolution rungs, one quantum pass</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="reveal">
+  <div class="stats">
+    <div class="stat"><div class="v">2<sup>2000</sup></div><div class="l">vertices in the largest graphs evaluated — specified by a rule, never stored</div></div>
+    <div class="stat"><div class="v">1 pass</div><div class="l">of shallow quantum measurement per operator; every answer after that is classical</div></div>
+    <div class="stat"><div class="v">≈5,500×</div><div class="l">shallower circuits than amplitude-estimation approaches require</div></div>
+    <div class="stat"><div class="v">10<sup>111</sup>×</div><div class="l">classical sampling blow-up on signed operators — while the atlas is unchanged</div></div>
+  </div>
 </section>
-<section class="steps">
-<h2>How it works</h2>
-<ol>
-<li><b>Encode.</b> The network is loaded as a quantum walk: a circuit whose step-by-step behavior mirrors the network&rsquo;s structure. The network may be implicit, defined by a rule and never stored.</li>
-<li><b>Acquire once.</b> A single shallow circuit pass measures a fixed table of polynomial moments of that walk at several resolution levels. This table is the atlas, and it is the only quantum step.</li>
-<li><b>Answer many times.</b> Classical post-processing turns the atlas into any of the target quantities, spectral densities, traces of matrix functions, resistance curves, log-determinants, attaching a consistency diagnostic to each answer.</li>
-</ol>
+
+<section class="reveal">
+  <h2>What it does</h2>
+  <p class="lede">A network's <b>spectrum</b> — the numbers behind its connectivity, diffusion, resistance curves, and log-determinants — is out of classical reach when the network is too big to store or its weights carry signs. This protocol measures <b>one compact table per network on a quantum computer</b>, then answers <b>hundreds of spectral questions from that table classically</b>, each with a built-in consistency check.</p>
+  <div class="pipe">
+    <div class="stage">
+      <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true"><circle cx="10" cy="12" r="4" fill="#7C5CFF"/><circle cx="34" cy="9" r="4" fill="#7C5CFF"/><circle cx="23" cy="28" r="4" fill="#7C5CFF"/><circle cx="38" cy="34" r="4" fill="#7C5CFF" opacity=".45"/><circle cx="8" cy="36" r="4" fill="#7C5CFF" opacity=".45"/><path d="M10 12 34 9M10 12 23 28M34 9 23 28M23 28 38 34M23 28 8 36" stroke="#7C5CFF" stroke-opacity=".5"/></svg>
+      <span class="tag">Input</span><h3>An implicit network</h3>
+      <p>Defined by a generating rule — up to 2<sup>2000</sup> vertices — or a signed / magnetic operator. Never written down.</p>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage">
+      <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true"><path d="M4 12h38M4 23h38M4 34h38" stroke="#3E8BFF" stroke-opacity=".6"/><rect x="12" y="7" width="10" height="10" rx="2" fill="#3E8BFF"/><rect x="26" y="18" width="10" height="10" rx="2" fill="#3E8BFF" opacity=".8"/><circle cx="17" cy="34" r="4" fill="#3E8BFF"/></svg>
+      <span class="tag">The only quantum step</span><h3>One shallow pass</h3>
+      <p>A quantum walk built from the network runs once, at circuit depths pre-fault-tolerant hardware can sustain.</p>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage">
+      <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.25"/><rect x="15" y="4" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.38"/><rect x="26" y="4" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.50"/><rect x="37" y="4" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.62"/><rect x="4" y="15" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.75"/><rect x="15" y="15" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.88"/><rect x="26" y="15" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="1.00"/><rect x="37" y="15" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.25"/><rect x="4" y="26" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.38"/><rect x="15" y="26" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.50"/><rect x="26" y="26" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.62"/><rect x="37" y="26" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.75"/><rect x="4" y="37" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.88"/><rect x="15" y="37" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="1.00"/><rect x="26" y="37" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.25"/><rect x="37" y="37" width="8" height="8" rx="1.5" fill="#2BD9C7" opacity="0.38"/></svg>
+      <span class="tag">Output</span><h3>The atlas</h3>
+      <p>A compact table of polynomial moments across several resolution levels. This is everything the quantum computer produces.</p>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage">
+      <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true"><circle cx="8" cy="23" r="4" fill="#FFC24B"/><path d="M12 23c10 0 10-14 22-14M12 23c10 0 10 14 22 14M12 23h22M12 23c8 0 8-7 22-7M12 23c8 0 8 7 22 7" stroke="#FFC24B" stroke-opacity=".55"/><circle cx="36" cy="9" r="2.5" fill="#FFC24B"/><circle cx="36" cy="16" r="2.5" fill="#FFC24B"/><circle cx="36" cy="23" r="2.5" fill="#FFC24B"/><circle cx="36" cy="30" r="2.5" fill="#FFC24B"/><circle cx="36" cy="37" r="2.5" fill="#FFC24B"/></svg>
+      <span class="tag">No further quantum cost</span><h3>Hundreds of answers</h3>
+      <p>Spectral densities, traces of matrix functions, resistance curves, log-determinants — classically, each with its own diagnostic.</p>
+    </div>
+  </div>
 </section>
-<section class="map">
-<h2>Measured results</h2>
-<div class="row"><code>Break-even</code><span>Pays for itself against per-query quantum sampling at 12&ndash;35 queries per operator; past that the advantage grows linearly with workload (2&ndash;30&times; on this paper&rsquo;s own 26&ndash;364-query workloads).</span></div><div class="row"><code>Circuit depth</code><span>Runs circuits &approx;5,500&times; shallower than amplitude-estimation approaches require, which is what makes it a candidate workload for today&rsquo;s pre-fault-tolerant processors.</span></div><div class="row"><code>Signed operators</code><span>Where the best generic classical sampler&rsquo;s cost multiplies by 10<sup>24</sup>&ndash;10<sup>111</sup>, the atlas&rsquo;s cost and accuracy are unchanged; a signed operator on &approx;10<sup>80</sup> vertices yields its log-determinant to 2.9&times;10<sup>&minus;14</sup> nats.</span></div><div class="row"><code>On hardware</code><span>Two IBM Heron processors recover the protocol&rsquo;s moment spectroscopy through order k&nbsp;=&nbsp;8, with median resolvent-curve error 5.2% (signed) and 9.7% (unsigned).</span></div>
+
+<section class="reveal">
+  <h2>When does one pass win?</h2>
+  <p class="lede">Per-query quantum methods pay full price for every question. The atlas pays once. Drag the workload size:</p>
+  <div class="widget">
+    <svg id="qchart" viewBox="0 0 640 250" role="img" aria-label="Cost versus number of spectral queries: per-query cost grows linearly, atlas cost is flat, break-even at 12 to 35 queries."></svg>
+    <input type="range" id="qslider" min="1" max="400" value="200" aria-label="Number of spectral questions asked of one operator">
+    <div class="readout" id="qread"></div>
+    <p class="note">Break-even measured at 12–35 queries per operator; the paper's own workloads span 26–364 queries. Advantage grows linearly with workload, without ceiling. Details and constants in the paper's quantum-comparison section.</p>
+  </div>
 </section>
-<section>
-<h2>Scope, plainly</h2>
-<div class="scope">
-<div><h3>Where it helps</h3><ul>
-<li>Implicitly specified networks far too large to store</li>
-<li>Signed and magnetic operators, where classical sampling breaks down</li>
-<li>Workloads asking many spectral questions of the same operator</li>
-<li>Settings that need a per-answer error diagnostic</li>
-</ul></div>
-<div><h3>Where it doesn&rsquo;t</h3><ul>
-<li>Explicit graphs that fit in memory: classical solvers remain 10<sup>3</sup>&ndash;10<sup>5</sup>&times; faster</li>
-<li>Single-question workloads below the 12&ndash;35-query break-even</li>
-<li>The single-query fault-tolerant limit, where amplitude estimation is &approx;2.4&times;10<sup>4</sup>&times; cheaper</li>
-<li>No hardness is claimed for any executed instance; all validation instances are classically checkable by construction</li>
-</ul></div>
-</div>
+
+<section class="reveal">
+  <h2>Results</h2>
+  <div class="figs">
+    <figure class="figcard wide"><img src="fig_qcomp.png" alt="Comparison of the atlas against per-query sampling and amplitude-estimation baselines."><figcaption><b>Against other quantum methods.</b> Break-even and scaling versus per-query sampling and amplitude estimation, at measured device constants — including where the atlas loses.</figcaption></figure>
+    <figure class="figcard"><img src="fig5_implicit_arc.png" alt="Validation arc across implicitly specified graphs."><figcaption><b>Graphs that can never be stored.</b> The implicit-graph arc, validated against independent ground truth through 2<sup>2000</sup> vertices.</figcaption></figure>
+    <figure class="figcard"><img src="figI.png" alt="Signed and magnetic operator experiments."><figcaption><b>Where classical sampling dies.</b> Signed and magnetic operators: the sampler's cost multiplies by 10<sup>24</sup>–10<sup>111</sup>; the atlas is unchanged.</figcaption></figure>
+    <figure class="figcard wide"><img src="fig4_noise.png" alt="Accuracy under injected measurement noise."><figcaption><b>Under noise.</b> Accuracy under injected per-moment measurement noise — the model later measured directly on hardware.</figcaption></figure>
+  </div>
 </section>
-<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
-<section>
-<h2>Hardware comparison</h2>
-<figure>
-  <img src="fig_qcomp.png" alt="Chart comparing the atlas protocol against per-query sampling and amplitude-estimation baselines.">
-  <figcaption>Quantum-comparison summary figure from the paper: break-even and scaling of the single-pass atlas against per-query sampling and amplitude-estimation baselines at measured device constants.</figcaption>
-</figure>
+
+<section class="reveal">
+  <div class="hw">
+    <div><div class="big">Runs on today's hardware</div><div class="k">ibm_marrakesh · ibm_fez</div></div>
+    <p>A two-processor characterization on IBM Heron devices recovers the protocol's moment spectroscopy through order <b>k&nbsp;=&nbsp;8</b>, with median resolvent-curve error <b>5.2%</b> (signed) and <b>9.7%</b> (unsigned) — and measures the noise model assumed throughout.</p>
+  </div>
 </section>
-<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
-<section class="abstract">
-<h2>Abstract</h2>
-<p>We present a quantum protocol that acquires, in a single pass per operator, a multi-resolution atlas of Chebyshev moments of a resolvent-warped qubitized walk, from which large families of spectral functionals, resistance curves, traces of matrix functions, log-determinants, spectral densities, are subsequently obtained by classical post-processing at no additional quantum cost. We evaluate the protocol on explicit graphs (a 7,624-node social network and a designed stochastic block model), on implicitly specified product graphs with up to 2<sup>2000</sup> vertices, and on signed and magnetic operators, against independently computed ground truth throughout, with all accuracy criteria fixed prior to data collection. On implicit sign-free graphs the per-moment cost gap over the best generic classical sampler is quadratic in spectral resolution; on signed and magnetic operators the classical sampler&rsquo;s cost multiplies by 10<sup>24</sup>&ndash;10<sup>111</sup> at the required depth while the quantum cost and accuracy are unchanged, and a signed operator on &approx;10<sup>80</sup> vertices yields its combinatorial log-determinant to 2.9&times;10<sup>&minus;14</sup> nats. Against quantum alternatives, the atlas breaks even with per-query sampling methods at 12&ndash;35 queries per operator, past which its advantage grows linearly and without ceiling in workload size (2&ndash;30&times; across our own 26&ndash;364-query workloads; additional functionals cost no further quantum steps), and runs circuits &approx;5,500&times; shallower than amplitude estimation requires, while ceding the single-query fault-tolerant limit by &approx;2.4&times;10<sup>4</sup>&times;; on explicit graphs classical solvers remain 10<sup>3</sup>&ndash;10<sup>5</sup>&times; faster. We prove worst-case hardness of the protocol&rsquo;s elementary output by reduction from normalized-trace estimation, and construct a signed instance on which all known classical simulation routes are closed. These properties, one shallow-circuit acquisition serving hundreds of functionals, each answer carrying internal consistency diagnostics, identify multi-query spectral estimation on signed and implicitly specified operators as a concrete, verification-ready workload for pre-fault-tolerant quantum hardware, with prospective applications to frustrated lattice models and gauge fields beyond the reach of sign-problem-limited sampling, and to network analysis at generative scale. A two-processor hardware characterization on IBM Heron devices recovers the protocol&rsquo;s moment spectroscopy through order k&nbsp;=&nbsp;8 (median resolvent-curve error 5.2% signed, 9.7% unsigned) and measures the noise model assumed throughout. All validation instances are classically tractable by construction; no hardness of any executed instance is claimed.</p>
+
+<section class="reveal">
+  <h2>Honest scope</h2>
+  <div class="scope">
+    <div class="scopecard win"><h3>Where it helps</h3><ul>
+      <li>Implicitly specified networks far too large to store</li>
+      <li>Signed and magnetic operators, where classical sampling breaks down</li>
+      <li>Workloads asking many spectral questions of the same operator</li>
+      <li>Settings that need a per-answer error diagnostic</li>
+    </ul></div>
+    <div class="scopecard lose"><h3>Where it doesn't</h3><ul>
+      <li>Explicit graphs that fit in memory: classical solvers stay 10<sup>3</sup>–10<sup>5</sup>× faster</li>
+      <li>Single questions below the 12–35-query break-even</li>
+      <li>The single-query fault-tolerant limit: amplitude estimation is ≈2.4×10<sup>4</sup>× cheaper there</li>
+      <li>No hardness claimed for any executed instance — all validation instances are classically checkable by construction</li>
+    </ul></div>
+  </div>
 </section>
-<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
-<section class="map">
-<h2>Repository map</h2>
-<div class="row"><code>expG/</code><span>Explicit-graph experiments: LastFM social network (7,624 nodes) and a designed stochastic block model, with archived datasets.</span></div><div class="row"><code>expG2/</code><span>Leverage-weighted port-selection follow-up on the same instances.</span></div><div class="row"><code>expH/</code><span>Implicitly specified product graphs with up to 2<sup>2000</sup> vertices.</span></div><div class="row"><code>expI/</code><span>Signed and magnetic operators, with path-sampler baselines.</span></div><div class="row"><code>expJ/</code><span>Hardness construction and quantum-comparison cost tables.</span></div><div class="row"><code>*.ipynb</code><span>IBM hardware acquisition and analysis notebook; zero-QPU reanalysis script.</span></div>
+
+<section class="reveal">
+  <h2>Abstract</h2>
+  <details><summary>Read the full abstract</summary><p>We present a quantum protocol that acquires, in a single pass per operator, a multi-resolution atlas of Chebyshev moments of a resolvent-warped qubitized walk, from which large families of spectral functionals, resistance curves, traces of matrix functions, log-determinants, spectral densities, are subsequently obtained by classical post-processing at no additional quantum cost. We evaluate the protocol on explicit graphs (a 7,624-node social network and a designed stochastic block model), on implicitly specified product graphs with up to 2<sup>2000</sup> vertices, and on signed and magnetic operators, against independently computed ground truth throughout, with all accuracy criteria fixed prior to data collection. On implicit sign-free graphs the per-moment cost gap over the best generic classical sampler is quadratic in spectral resolution; on signed and magnetic operators the classical sampler&rsquo;s cost multiplies by 10<sup>24</sup>&ndash;10<sup>111</sup> at the required depth while the quantum cost and accuracy are unchanged, and a signed operator on &approx;10<sup>80</sup> vertices yields its combinatorial log-determinant to 2.9&times;10<sup>&minus;14</sup> nats. Against quantum alternatives, the atlas breaks even with per-query sampling methods at 12&ndash;35 queries per operator, past which its advantage grows linearly and without ceiling in workload size (2&ndash;30&times; across our own 26&ndash;364-query workloads; additional functionals cost no further quantum steps), and runs circuits &approx;5,500&times; shallower than amplitude estimation requires, while ceding the single-query fault-tolerant limit by &approx;2.4&times;10<sup>4</sup>&times;; on explicit graphs classical solvers remain 10<sup>3</sup>&ndash;10<sup>5</sup>&times; faster. We prove worst-case hardness of the protocol&rsquo;s elementary output by reduction from normalized-trace estimation, and construct a signed instance on which all known classical simulation routes are closed. These properties, one shallow-circuit acquisition serving hundreds of functionals, each answer carrying internal consistency diagnostics, identify multi-query spectral estimation on signed and implicitly specified operators as a concrete, verification-ready workload for pre-fault-tolerant quantum hardware, with prospective applications to frustrated lattice models and gauge fields beyond the reach of sign-problem-limited sampling, and to network analysis at generative scale. A two-processor hardware characterization on IBM Heron devices recovers the protocol&rsquo;s moment spectroscopy through order k&nbsp;=&nbsp;8 (median resolvent-curve error 5.2% signed, 9.7% unsigned) and measures the noise model assumed throughout. All validation instances are classically tractable by construction; no hardness of any executed instance is claimed.</p></details>
 </section>
-<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
-<section>
-<h2>Cite</h2>
-<pre>@misc{ansari2026spectralatlases,
+
+<section class="reveal">
+  <h2>In this repository</h2>
+  <div class="repo">
+    <div class="repocard"><code>expG/ · expG2/</code><p>Explicit-graph experiments (LastFM, 7,624 nodes; designed SBM) with archived datasets and port-selection follow-up.</p></div>
+    <div class="repocard"><code>expH/</code><p>Implicitly specified product graphs with up to 2<sup>2000</sup> vertices.</p></div>
+    <div class="repocard"><code>expI/</code><p>Signed and magnetic operators, with path-sampler baselines.</p></div>
+    <div class="repocard"><code>expJ/</code><p>Hardness construction and quantum-comparison cost tables.</p></div>
+    <div class="repocard"><code>*.ipynb</code><p>IBM hardware acquisition and analysis notebook, plus a zero-QPU reanalysis script.</p></div>
+    <div class="repocard"><code>figs/</code><p>The seven figures as they appear in the paper. Protocols and accuracy criteria were fixed before data collection.</p></div>
+  </div>
+</section>
+
+<section class="reveal">
+  <h2>Cite</h2>
+  <div class="cite">
+    <button class="copy" id="copybib">Copy</button>
+<pre id="bib">@misc{ansari2026spectralatlases,
   title  = {Quantum Spectral Atlases for Exponentially Large Graphs:
             Quadratic Speedup, Query Amortization, and Shallow Circuits},
   author = {Ansari, Kamran},
   year   = {2026},
   note   = {arXiv preprint; identifier to be added}
 }</pre>
+  </div>
 </section>
-<footer>Materials on this site mirror the <code>anc/</code> ancillary package of the arXiv submission. Accuracy criteria were fixed prior to data collection; ground truth is dual-generator with cross-checks at or below 1e&minus;9.</footer>
+
+<footer>Materials on this site mirror the <code>anc/</code> ancillary package of the arXiv submission. Ground truth is dual-generator with cross-checks at or below 1e−9.</footer>
+</div>
+
+<script>
+(function(){
+  var rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // scroll reveal
+  if(!rm && 'IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  } else { document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');}); }
+
+  // cost-vs-queries widget
+  var svg = document.getElementById('qchart'), slider = document.getElementById('qslider'), read = document.getElementById('qread');
+  var W=640,H=250,L=46,R=14,T=14,B=30,QMAX=400,CMAX=400,LO=12,HI=35;
+  function x(q){return L+(W-L-R)*q/QMAX} function y(c){return T+(H-T-B)*(1-c/CMAX)}
+  var s='';
+  s+='<rect x="'+x(26)+'" y="'+T+'" width="'+(x(364)-x(26))+'" height="'+(H-T-B)+'" fill="#3E8BFF" opacity="0.06"/>';
+  s+='<rect x="'+L+'" y="'+y(HI)+'" width="'+(W-L-R)+'" height="'+(y(LO)-y(HI))+'" fill="#2BD9C7" opacity="0.16"/>';
+  s+='<line x1="'+L+'" y1="'+y(0)+'" x2="'+(W-R)+'" y2="'+y(0)+'" stroke="#232A3A"/>';
+  s+='<line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+y(0)+'" stroke="#232A3A"/>';
+  s+='<line x1="'+x(0)+'" y1="'+y(0)+'" x2="'+x(QMAX)+'" y2="'+y(CMAX)+'" stroke="#FFC24B" stroke-width="2"/>';
+  s+='<text class="axlab" x="'+(W-R)+'" y="'+(H-8)+'" text-anchor="end">questions asked of one operator →</text>';
+  s+='<text class="axlab" x="'+(L-6)+'" y="'+(T+10)+'" text-anchor="end" transform="rotate(-90 '+(L-6)+' '+(T+10)+')">quantum cost →</text>';
+  s+='<text class="axlab" x="'+(x(364)+4)+'" y="'+(T+14)+'" fill="#3E8BFF">this paper\u2019s workloads</text>';
+  s+='<text class="axlab" x="'+(L+6)+'" y="'+(y(HI)-5)+'" fill="#2BD9C7">atlas: one pass (break-even 12\u201335)</text>';
+  s+='<text class="axlab" x="'+x(200)+'" y="'+(y(200)-8)+'" fill="#FFC24B" text-anchor="end">per-query methods</text>';
+  s+='<line id="qm" stroke="#E8EAF0" stroke-dasharray="3 3"/><circle id="qd" r="4.5" fill="#E8EAF0"/>';
+  svg.innerHTML=s;
+  var qm=document.getElementById('qm'), qd=document.getElementById('qd');
+  function fmt(v){return v>=10?Math.round(v):Math.round(v*10)/10}
+  function upd(){
+    var q=+slider.value;
+    qm.setAttribute('x1',x(q)); qm.setAttribute('x2',x(q)); qm.setAttribute('y1',y(0)); qm.setAttribute('y2',y(Math.min(q,CMAX)));
+    qd.setAttribute('cx',x(q)); qd.setAttribute('cy',y(Math.min(q,CMAX)));
+    if(q<LO){read.innerHTML='At <em>'+q+'</em> question'+(q>1?'s':'')+': below break-even \u2014 per-query methods are cheaper here.';}
+    else if(q<=HI){read.innerHTML='At <em>'+q+'</em> questions: inside the measured break-even zone (12\u201335).';}
+    else{read.innerHTML='At <em>'+q+'</em> questions: the atlas is \u2248<em>'+fmt(q/HI)+'\u2013'+fmt(q/LO)+'\u00d7</em> cheaper \u2014 and the margin keeps growing linearly.';}
+  }
+  slider.addEventListener('input',upd); upd();
+
+  // copy bibtex
+  var btn=document.getElementById('copybib');
+  btn.addEventListener('click',function(){
+    var t=document.getElementById('bib').textContent;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){btn.textContent='Copied \u2713';setTimeout(function(){btn.textContent='Copy'},1600);}).catch(function(){});
+  });
+})();
+</script>
 </body>
 </html>
