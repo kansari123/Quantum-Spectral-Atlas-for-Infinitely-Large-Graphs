@@ -24,11 +24,13 @@ Kamran Ansari · Stanford University
 
 **One shallow quantum measurement pass per operator → an atlas of spectral moments → hundreds of spectral quantities by classical post-processing, each with a built-in consistency check.** This repository is the public mirror of the paper's arXiv ancillary package: all experiment code, archived datasets, protocols with accuracy criteria fixed before data collection, per-run results, figures, and the IBM hardware notebook.
 
+**Why this is hard.** A network's *spectrum* is the set of numbers that summarizes its global shape: how tightly it is connected, how random walks and diffusion spread across it, its effective-resistance curves and log-determinants. Two situations put the spectrum out of classical reach. First, *implicitly specified* networks, defined by a generating rule (like the product graphs here, with up to 2^2000 vertices), are far too large to ever write down, so any method that touches the whole matrix is ruled out from the start. Second, *signed and magnetic* operators, whose weights mix positive and negative (or complex) entries, defeat the sampling methods that normally rescue you at scale: sampled path contributions arrive with alternating signs and cancel almost perfectly, leaving a signal that drowns in its own noise. This is the sign problem, and on the instances measured here it multiplies the classical sampler's cost by 10^24–10^111.
+
 | **2^2000** | **1 pass** | **≈5,500×** | **10^24–10^111×** |
 |:--:|:--:|:--:|:--:|
 | vertices in the largest evaluated graphs — defined by a rule, never stored | of quantum measurement per operator; every answer after that is classical | shallower circuits than amplitude estimation requires | classical sampling blow-up on signed operators, while the atlas is unchanged |
 
-## How it works
+## The approach
 
 ```mermaid
 flowchart LR
@@ -40,7 +42,29 @@ flowchart LR
     C --> G["Traces of matrix functions<br/>+ per-answer diagnostics"]
 ```
 
-Measure once, re-read forever: additional spectral questions cost no further quantum steps. Past the measured break-even of 12–35 queries per operator, the advantage grows linearly with workload (2–30× on the paper's own 26–364-query workloads).
+The protocol builds a *quantum walk* from the operator: a circuit whose step-by-step dynamics mirror the network's structure, constructed directly from the generating rule, so the network itself is never stored. One shallow acquisition pass then measures a fixed table of *polynomial moments* of that walk at several resolution levels: coarse levels capture the spectrum's broad shape with very short circuits, and finer levels sharpen it where needed. That table is the **atlas**, and it is the only thing the quantum computer ever produces.
+
+Everything after that is classical post-processing. Because moments are functional-agnostic, the same table is re-read for any target quantity — spectral densities, traces of matrix functions, effective-resistance curves, log-determinants — hundreds of answers at no further quantum cost. Each read-out is solved as a constrained fit that carries its own internal consistency diagnostics, so every answer comes with a check on its own trustworthiness. All of this was validated against independently computed ground truth, with accuracy criteria fixed before data collection.
+
+## Advantage over classical methods
+
+**On implicit, sign-free graphs**, the honest classical competitor is a generic walk-based sampler, which also never stores the network but pays step by step. The quantum walk reaches a given spectral resolution with quadratically fewer steps than that sampler needs — a per-moment gap that is quadratic in resolution, and measured rather than assumed.
+
+**On signed and magnetic operators**, the gap stops being polynomial. Sign cancellations push the measured cost of the classical sampler up by 10^24–10^111× at the required depth, while the quantum walk is sign-blind: its cost and accuracy do not change at all. As a concrete endpoint, a signed operator on ≈10^80 vertices yields its log-determinant to 2.9×10^−14 nats.
+
+**And where classical simply wins:** if the graph is explicit and fits in memory, direct classical solvers remain 10^3–10^5× faster. This protocol is for the regimes where they cannot run.
+
+## Advantage over other quantum methods
+
+Per-query quantum methods attack one functional at a time and pay their full acquisition cost again for every new question. The atlas inverts that economics: it breaks even against per-query sampling at **12–35 questions per operator**, and past break-even the advantage is simply **linear in workload** — 2–30× on this paper's own 26–364-query workloads, ≈87× at a thousand queries, with no ceiling, because additional functionals cost no further quantum steps.
+
+Amplitude estimation is the strongest single-query method: in the fault-tolerant limit it is ≈2.4×10^4× cheaper for one answer. But it buys that with unbroken coherent circuits **≈5,500× deeper** than the atlas runs — beyond any pre-fault-tolerant machine — and the atlas overtakes even amplitude estimation once the workload passes ≈2.4×10^4 questions.
+
+| | Pays per question? | Circuit depth | Best regime |
+|---|---|---|---|
+| **Per-query sampling** | Yes — full cost every time | Comparable per query | Few questions (< 12–35) of one operator |
+| **Amplitude estimation** | Yes | Deep unbroken coherent circuits — fault-tolerant only | Single-query fault-tolerant limit (≈2.4×10^4× cheaper there) |
+| **This atlas** | No — one pass, then classical | ≈5,500× shallower than amplitude estimation | Many questions of one operator; advantage grows linearly, overtakes amplitude estimation past ≈2.4×10^4 |
 
 ## Results
 
