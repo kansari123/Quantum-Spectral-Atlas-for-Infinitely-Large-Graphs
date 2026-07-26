@@ -105,7 +105,7 @@ The other experiment scripts follow the same working-directory pattern. The hard
 | `expJ/` | Hardness construction and quantum-comparison worked constants and cost tables. |
 | `qpvl_ibm_hardware_validation.ipynb` | IBM hardware acquisition and analysis notebook (two-processor characterization on IBM Heron devices). |
 | `qpvl_run2_reanalysis_cell.py` | Self-contained zero-QPU reanalysis of the cached hardware run. |
-| `figs/` | The seven figures as they appear in the paper. |
+| `figs/` | The figures as they appear in the paper, including the protocol-overview schematic (Figure 1). |
 | `docs/` | Source of the project page. |
 | `README.txt` | The original ancillary README shipped with the arXiv package. |
 
