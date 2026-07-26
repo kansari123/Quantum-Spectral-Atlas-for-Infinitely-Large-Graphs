@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quantum Spectral Atlases for Exponentially Large Graphs</title>
+<meta name="description" content="A quantum protocol that acquires, in a single pass per operator, a multi-resolution atlas of Chebyshev moments, serving large families of spectral functionals by classical post-processing.">
+<style>
+:root {
+  --bg:#FCFCFA; --ink:#191C1F; --muted:#5A6068; --accent:#2742B8;
+  --rule:#DCDDD8; --codebg:#F1F1EC;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+* { box-sizing:border-box; }
+html { background:var(--bg); }
+body {
+  margin:0 auto; max-width:44rem; padding:clamp(2rem,6vw,4.5rem) clamp(1.1rem,4vw,2rem) 3rem;
+  color:var(--ink); font-family:var(--serif); font-size:1.05rem; line-height:1.62;
+}
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+a:focus-visible, .btn:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 1rem; }
+h1 { font-size:clamp(1.7rem,4.6vw,2.45rem); line-height:1.16; font-weight:600; margin:.1rem 0 .4rem; letter-spacing:-.01em; }
+.subtitle { font-size:clamp(1.05rem,2.6vw,1.3rem); color:var(--muted); margin:0 0 1.1rem; line-height:1.35; }
+.author { margin:0 0 1.6rem; }
+.author .aff { color:var(--muted); }
+.actions { display:flex; flex-wrap:wrap; gap:.6rem; margin:0 0 2.2rem; }
+.btn { font-family:var(--mono); font-size:.8rem; padding:.5rem .95rem; border:1px solid var(--ink); border-radius:999px; color:var(--ink); }
+.btn:hover { background:var(--ink); color:var(--bg); text-decoration:none; }
+.btn.pending { border-style:dashed; border-color:var(--rule); color:var(--muted); cursor:default; }
+.btn.pending:hover { background:none; color:var(--muted); }
+.cheb { display:block; width:100%; height:14px; color:var(--muted); opacity:.55; margin:2.1rem 0; }
+h2 { font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500; margin:0 0 .9rem; }
+.abstract p { margin:0; text-align:left; hyphens:auto; }
+figure { margin:0; }
+figure img { width:100%; height:auto; border:1px solid var(--rule); border-radius:4px; }
+figcaption { font-size:.85rem; color:var(--muted); margin-top:.55rem; line-height:1.5; }
+.map .row { display:grid; grid-template-columns:9.5rem 1fr; gap:1rem; padding:.55rem 0; border-top:1px solid var(--rule); }
+.map .row:last-child { border-bottom:1px solid var(--rule); }
+.map code { font-family:var(--mono); font-size:.82rem; }
+.map span { font-size:.95rem; }
+pre { background:var(--codebg); border-radius:6px; padding:1rem 1.1rem; overflow-x:auto; font-family:var(--mono); font-size:.78rem; line-height:1.55; }
+footer { margin-top:2.4rem; font-size:.88rem; color:var(--muted); }
+@media (max-width:520px) { .map .row { grid-template-columns:1fr; gap:.15rem; } }
+</style>
+</head>
+<body>
+<p class="eyebrow">Preprint &middot; July 2026</p>
+<h1>Quantum Spectral Atlases for Exponentially&nbsp;Large&nbsp;Graphs</h1>
+<p class="subtitle">Quadratic Speedup, Query Amortization, and Shallow Circuits</p>
+<p class="author">Kamran Ansari <span class="aff">&middot; Stanford University</span></p>
+<nav class="actions">
+  <span class="btn pending" id="arxiv-link">arXiv &mdash; link pending</span>
+  <a class="btn" href="https://github.com/kansari123/Quantum-Spectral-Atlas-for-Infinitely-Large-Graphs">Code &amp; ancillary materials</a>
+  <a class="btn" href="mailto:ansarik@stanford.edu">Contact</a>
+</nav>
+<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
+<section class="abstract">
+<h2>Abstract</h2>
+<p>We present a quantum protocol that acquires, in a single pass per operator, a multi-resolution atlas of Chebyshev moments of a resolvent-warped qubitized walk, from which large families of spectral functionals, resistance curves, traces of matrix functions, log-determinants, spectral densities, are subsequently obtained by classical post-processing at no additional quantum cost. We evaluate the protocol on explicit graphs (a 7,624-node social network and a designed stochastic block model), on implicitly specified product graphs with up to 2<sup>2000</sup> vertices, and on signed and magnetic operators, against independently computed ground truth throughout, with all accuracy criteria fixed prior to data collection. On implicit sign-free graphs the per-moment cost gap over the best generic classical sampler is quadratic in spectral resolution; on signed and magnetic operators the classical sampler&rsquo;s cost multiplies by 10<sup>24</sup>&ndash;10<sup>111</sup> at the required depth while the quantum cost and accuracy are unchanged, and a signed operator on &approx;10<sup>80</sup> vertices yields its combinatorial log-determinant to 2.9&times;10<sup>&minus;14</sup> nats. Against quantum alternatives, the atlas breaks even with per-query sampling methods at 12&ndash;35 queries per operator, past which its advantage grows linearly and without ceiling in workload size (2&ndash;30&times; across our own 26&ndash;364-query workloads; additional functionals cost no further quantum steps), and runs circuits &approx;5,500&times; shallower than amplitude estimation requires, while ceding the single-query fault-tolerant limit by &approx;2.4&times;10<sup>4</sup>&times;; on explicit graphs classical solvers remain 10<sup>3</sup>&ndash;10<sup>5</sup>&times; faster. We prove worst-case hardness of the protocol&rsquo;s elementary output by reduction from normalized-trace estimation, and construct a signed instance on which all known classical simulation routes are closed. These properties, one shallow-circuit acquisition serving hundreds of functionals, each answer carrying internal consistency diagnostics, identify multi-query spectral estimation on signed and implicitly specified operators as a concrete, verification-ready workload for pre-fault-tolerant quantum hardware, with prospective applications to frustrated lattice models and gauge fields beyond the reach of sign-problem-limited sampling, and to network analysis at generative scale. A two-processor hardware characterization on IBM Heron devices recovers the protocol&rsquo;s moment spectroscopy through order k&nbsp;=&nbsp;8 (median resolvent-curve error 5.2% signed, 9.7% unsigned) and measures the noise model assumed throughout. All validation instances are classically tractable by construction; no hardness of any executed instance is claimed.</p>
+</section>
+<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
+<section>
+<h2>Hardware comparison</h2>
+<figure>
+  <img src="fig_qcomp.png" alt="Chart comparing the atlas protocol against per-query sampling and amplitude-estimation baselines.">
+  <figcaption>Quantum-comparison summary figure from the paper: break-even and scaling of the single-pass atlas against per-query sampling and amplitude-estimation baselines at measured device constants.</figcaption>
+</figure>
+</section>
+<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
+<section class="map">
+<h2>Repository map</h2>
+<div class="row"><code>expG/</code><span>Explicit-graph experiments: LastFM social network (7,624 nodes) and a designed stochastic block model, with archived datasets.</span></div><div class="row"><code>expG2/</code><span>Leverage-weighted port-selection follow-up on the same instances.</span></div><div class="row"><code>expH/</code><span>Implicitly specified product graphs with up to 2<sup>2000</sup> vertices.</span></div><div class="row"><code>expI/</code><span>Signed and magnetic operators, with path-sampler baselines.</span></div><div class="row"><code>expJ/</code><span>Hardness construction and quantum-comparison cost tables.</span></div><div class="row"><code>*.ipynb</code><span>IBM hardware acquisition and analysis notebook; zero-QPU reanalysis script.</span></div>
+</section>
+<svg class="cheb" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor"><rect x="999.25" y="3" width="1.5" height="8"/><rect x="996.84" y="3" width="1.5" height="8"/><rect x="989.64" y="3" width="1.5" height="8"/><rect x="977.72" y="3" width="1.5" height="8"/><rect x="961.19" y="3" width="1.5" height="8"/><rect x="940.21" y="3" width="1.5" height="8"/><rect x="914.98" y="3" width="1.5" height="8"/><rect x="885.76" y="3" width="1.5" height="8"/><rect x="852.80" y="3" width="1.5" height="8"/><rect x="816.45" y="3" width="1.5" height="8"/><rect x="777.04" y="3" width="1.5" height="8"/><rect x="734.95" y="3" width="1.5" height="8"/><rect x="690.59" y="3" width="1.5" height="8"/><rect x="644.39" y="3" width="1.5" height="8"/><rect x="596.80" y="3" width="1.5" height="8"/><rect x="548.26" y="3" width="1.5" height="8"/><rect x="499.25" y="3" width="1.5" height="8"/><rect x="450.24" y="3" width="1.5" height="8"/><rect x="401.70" y="3" width="1.5" height="8"/><rect x="354.11" y="3" width="1.5" height="8"/><rect x="307.91" y="3" width="1.5" height="8"/><rect x="263.55" y="3" width="1.5" height="8"/><rect x="221.46" y="3" width="1.5" height="8"/><rect x="182.05" y="3" width="1.5" height="8"/><rect x="145.70" y="3" width="1.5" height="8"/><rect x="112.74" y="3" width="1.5" height="8"/><rect x="83.52" y="3" width="1.5" height="8"/><rect x="58.29" y="3" width="1.5" height="8"/><rect x="37.31" y="3" width="1.5" height="8"/><rect x="20.78" y="3" width="1.5" height="8"/><rect x="8.86" y="3" width="1.5" height="8"/><rect x="1.66" y="3" width="1.5" height="8"/><rect x="-0.75" y="3" width="1.5" height="8"/></g></svg>
+<section>
+<h2>Cite</h2>
+<pre>@misc{ansari2026spectralatlases,
+  title  = {Quantum Spectral Atlases for Exponentially Large Graphs:
+            Quadratic Speedup, Query Amortization, and Shallow Circuits},
+  author = {Ansari, Kamran},
+  year   = {2026},
+  note   = {arXiv preprint; identifier to be added}
+}</pre>
+</section>
+<footer>Materials on this site mirror the <code>anc/</code> ancillary package of the arXiv submission. Accuracy criteria were fixed prior to data collection; ground truth is dual-generator with cross-checks at or below 1e&minus;9.</footer>
+</body>
+</html>
